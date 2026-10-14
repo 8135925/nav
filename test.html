@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测试页面 - 陆壹AI工具导航</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+      }
+    }
+  }
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  html.dark body{background:#0f172a}
+  html:not(.dark) body{background:#f8fafc}
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-slate-600 dark:text-slate-300 antialiased transition-colors duration-300 px-6">
+
+  <div class="max-w-xl w-full text-center">
+    <div class="w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white shadow-xl shadow-cyan-500/30">
+      <i class="fa-solid fa-flask text-4xl"></i>
+    </div>
+
+    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight">
+      测试页面
+    </h1>
+    <p class="text-slate-500 dark:text-slate-400 mb-8">
+      如果你看到了这个页面，说明 <span class="font-mono text-cyan-600 dark:text-cyan-400">nav.hlpeng.cn/test</span> 已成功部署
+    </p>
+
+    <div id="status" class="glass rounded-2xl p-6 text-left text-sm leading-7 mb-8 bg-white/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 backdrop-blur-md">
+      <p class="mb-1"><i class="fa-solid fa-circle-check text-emerald-500 mr-2"></i>静态资源加载正常（HTML / Tailwind / Font Awesome）</p>
+      <p class="mb-1"><i class="fa-solid fa-circle-check text-emerald-500 mr-2"></i>当前 URL：<span id="curUrl" class="font-mono break-all text-cyan-600 dark:text-cyan-400"></span></p>
+      <p class="mb-1"><i class="fa-solid fa-circle-check text-emerald-500 mr-2"></i>页面加载耗时：<span id="loadTime" class="font-mono text-cyan-600 dark:text-cyan-400"></span></p>
+      <p><i class="fa-regular fa-clock text-slate-400 mr-2"></i>加载时间：<span id="nowTime" class="font-mono text-slate-500 dark:text-slate-400"></span></p>
+    </div>
+
+    <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-bold shadow-lg shadow-cyan-500/30 transition hover:-translate-y-0.5">
+      <i class="fa-solid fa-arrow-left"></i>
+      返回导航首页
+    </a>
+  </div>
+
+<script>
+  document.getElementById('curUrl').textContent = location.href;
+  document.getElementById('loadTime').textContent = (performance.now()).toFixed(1) + ' ms';
+  document.getElementById('nowTime').textContent = new Date().toLocaleString('zh-CN');
+</script>
+</body>
+</html>
