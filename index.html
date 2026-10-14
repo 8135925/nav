@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>陆壹AI工具导航</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+      }
+    }
+  }
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  /* 动态背景 */
+  .bg-layer{position:fixed;inset:0;z-index:-1;overflow:hidden;transition:background-color .5s}
+  html.dark .bg-layer{
+    background-color:#0f172a;
+    background-image:
+      radial-gradient(at 0% 0%, rgba(17,24,39,1) 0, transparent 50%),
+      radial-gradient(at 50% 0%, rgba(88,28,135,.3) 0, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(15,23,42,1) 0, transparent 50%);
+  }
+  html:not(.dark) .bg-layer{
+    background-color:#f8fafc;
+    background-image:
+      radial-gradient(at 0% 0%, rgba(219,234,254,1) 0, transparent 50%),
+      radial-gradient(at 50% 0%, rgba(243,232,255,.8) 0, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(241,245,249,1) 0, transparent 50%);
+  }
+  @keyframes drift{
+    0%{transform:translate(0,0) scale(1)}
+    33%{transform:translate(30px,-50px) scale(1.1)}
+    66%{transform:translate(-20px,20px) scale(.9)}
+    100%{transform:translate(0,0) scale(1)}
+  }
+  @keyframes rise{
+    from{opacity:0;transform:translateY(20px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  .blob{animation:drift 7s infinite}
+  .blob.d2{animation-delay:2s}
+  .blob.d4{animation-delay:4s}
+  .rise{animation:rise .5s ease-out forwards}
+
+  /* 磨砂玻璃卡片 */
+  .glass{
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    transition:all .4s cubic-bezier(.4,0,.2,1);border:1px solid;
+  }
+  html.dark .glass{background:rgba(30,41,59,.6);border-color:rgba(255,255,255,.05);box-shadow:0 4px 6px -1px rgba(0,0,0,.3)}
+  html.dark .glass:hover{background:rgba(30,41,59,.8);border-color:rgba(6,182,212,.5);box-shadow:0 0 20px rgba(6,182,212,.2);transform:translateY(-5px)}
+  html:not(.dark) .glass{background:rgba(255,255,255,.7);border-color:rgba(0,0,0,.05);box-shadow:0 4px 6px -1px rgba(148,163,184,.1)}
+  html:not(.dark) .glass:hover{background:rgba(255,255,255,.95);border-color:rgba(6,182,212,.5);box-shadow:0 10px 25px -5px rgba(6,182,212,.15);transform:translateY(-5px)}
+
+  /* 分类按钮激活态 */
+  .cat-btn.on div,.cat-btn.on span,.cat-btn.on i{color:#fff !important}
+  html:not(.dark) .cat-btn.on{background:#334155;border-color:#334155;color:#fff !important;box-shadow:0 4px 12px rgba(51,65,85,.3)}
+  html.dark .cat-btn.on{background:#06b6d4;border-color:#06b6d4;color:#fff !important;box-shadow:0 0 15px rgba(6,182,212,.4)}
+
+  /* 滚动条 */
+  ::-webkit-scrollbar{width:8px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+  html.dark ::-webkit-scrollbar-thumb{background:#475569}
+  ::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+  html.dark ::-webkit-scrollbar-thumb:hover{background:#64748b}
+
+  /* 回到顶部 */
+  #topBtn{position:fixed;bottom:30px;right:30px;z-index:50;opacity:0;visibility:hidden;transition:all .3s}
+  #topBtn.show{opacity:1;visibility:visible}
+</style>
+</head>
+<body class="text-slate-600 dark:text-slate-300 antialiased selection:bg-cyan-500 selection:text-white transition-colors duration-300">
+
+<!-- 背景层 -->
+<div class="bg-layer">
+  <div class="blob absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+  <div class="blob d2 absolute top-0 -right-4 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+  <div class="blob d4 absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+</div>
+
+<!-- 顶栏 -->
+<nav class="border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/80 backdrop-blur-md fixed w-full z-50 transition-colors duration-300">
+  <div class="container mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3 cursor-pointer" onclick="location.reload()">
+      <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30">
+        <i class="fa-solid fa-layer-group"></i>
+      </div>
+      <span class="text-xl font-bold text-slate-800 dark:text-white tracking-wide">陆壹AI
+        <span class="text-xs font-normal text-slate-500 dark:text-slate-400 px-1 border border-slate-300 dark:border-slate-700 rounded ml-1">AI导航</span>
+      </span>
+    </div>
+    <button id="themeBtn" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition flex items-center justify-center border border-slate-200 dark:border-slate-700">
+      <i class="fa-solid fa-sun dark:hidden"></i>
+      <i class="fa-solid fa-moon hidden dark:block"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- 头部 -->
+<header class="pt-36 pb-8 px-6 text-center relative">
+  <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white mb-6 relative z-10 tracking-tight">
+    探索 AI <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600">无限可能</span>
+  </h1>
+  <p class="text-slate-500 dark:text-slate-400 mb-8 text-lg max-w-2xl mx-auto">收录全球优质 AI 工具，赋能你的创造力</p>
+
+  <div class="max-w-2xl mx-auto relative z-10 group mb-10">
+    <div class="relative flex items-center">
+      <input type="text" id="searchIn" placeholder="搜索工具，例如：Suno, Claude, 编程..."
+        class="w-full bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-600 rounded-2xl py-4 pl-6 pr-14 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 shadow-xl backdrop-blur-sm transition-all">
+      <i class="fa-solid fa-search absolute right-6 text-slate-400 group-hover:text-cyan-500 transition-colors"></i>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto relative z-10">
+    <p class="text-xs text-slate-400 dark:text-slate-500 mb-4 font-medium tracking-wider uppercase">常用大模型直达</p>
+    <div class="flex flex-wrap justify-center gap-5 sm:gap-8 rise" id="heroRow" style="animation-delay:.2s"></div>
+  </div>
+</header>
+
+<!-- 分类栏 -->
+<section class="container mx-auto px-4 py-4 sticky top-16 z-40 bg-transparent">
+  <div class="flex flex-wrap justify-center gap-2 md:gap-3 p-2 rounded-2xl backdrop-blur-md" id="catRow"></div>
+</section>
+
+<!-- 工具网格 -->
+<section class="container mx-auto px-6 pb-24 pt-4">
+  <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+</section>
+
+<button id="topBtn" class="w-12 h-12 rounded-full bg-cyan-500 text-white shadow-lg flex items-center justify-center hover:bg-cyan-600 transition hover:-translate-y-1">
+  <i class="fa-solid fa-arrow-up"></i>
+</button>
+
+<footer class="border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 py-10 text-center text-sm text-slate-500 dark:text-slate-500 backdrop-blur">
+  <p class="mb-2">&copy; 2026 陆壹导航. All rights reserved.</p>
+  <p class="text-xs">探索未来，从未止步</p>
+</footer>
+
+<script>
+/* ================= 主题 ================= */
+const root = document.documentElement;
+if(localStorage.theme === 'dark' || (!('theme' in localStorage) && matchMedia('(prefers-color-scheme: dark)').matches)){
+  root.classList.add('dark');
+}else{
+  root.classList.remove('dark');
+}
+document.getElementById('themeBtn').addEventListener('click', () => {
+  root.classList.toggle('dark');
+  localStorage.theme = root.classList.contains('dark') ? 'dark' : 'light';
+});
+
+/* ================= 数据 ================= */
+const CATS = [
+  {id:'all',    name:'全部',     icon:'fa-border-all',   color:'text-gray-500 dark:text-gray-400'},
+  {id:'common', name:'常用工具', icon:'fa-star',         color:'text-yellow-500 dark:text-yellow-400'},
+  {id:'chat',   name:'AI对话',   icon:'fa-comments',     color:'text-blue-500 dark:text-blue-400'},
+  {id:'write',  name:'AI写作',   icon:'fa-pen-nib',      color:'text-green-500 dark:text-green-400'},
+  {id:'image',  name:'AI绘图',   icon:'fa-image',        color:'text-pink-500 dark:text-pink-400'},
+  {id:'video',  name:'AI视频',   icon:'fa-film',         color:'text-purple-500 dark:text-purple-400'},
+  {id:'music',  name:'AI音乐',   icon:'fa-music',        color:'text-red-500 dark:text-red-400'},
+  {id:'code',   name:'AI编程',   icon:'fa-code',         color:'text-cyan-600 dark:text-cyan-400'},
+  {id:'local',  name:'本地/桌面', icon:'fa-hdd',         color:'text-orange-500 dark:text-orange-400'},
+  {id:'rank',   name:'模型排行', icon:'fa-ranking-star', color:'text-indigo-500 dark:text-indigo-400'},
+  {id:'liuyi',  name:'陆壹',     icon:'fa-gem',          color:'text-rose-500 dark:text-rose-400'},
+];
+
+const HERO = [
+  {name:'DeepSeek',  url:'https://chat.deepseek.com', icon:'fa-fish',     bg:'bg-blue-600'},
+  {name:'豆包',       url:'https://doubao.com',        icon:'fa-robot',    bg:'bg-indigo-500'},
+  {name:'通义千问',   url:'https://tongyi.aliyun.com', icon:'fa-cloud',    bg:'bg-purple-600'},
+  {name:'Kimi',      url:'https://kimi.moonshot.cn',  icon:'fa-moon',     bg:'bg-slate-800'},
+  {name:'Minimax',   url:'https://hailuoai.com',      icon:'fa-bolt',     bg:'bg-rose-500'},
+  {name:'ChatGPT',   url:'https://chatgpt.com',       icon:'fa-message',  bg:'bg-emerald-600'},
+  {name:'Gemini',    url:'https://gemini.google.com', icon:'fa-brands fa-google', bg:'bg-gradient-to-r from-blue-500 to-yellow-500'},
+  {name:'Grok',      url:'https://grok.com',          icon:'fa-x',        bg:'bg-black'},
+  {name:'Claude',    url:'https://claude.ai/',        icon:'fa-brain',    bg:'bg-orange-600'},
+];
+
+const TOOLS = [
+  // 常用工具
+  {name:'Gamma',        desc:'一键生成精美PPT，打工人与学生的神器',             cat:'common', url:'https://gamma.app/',                      icon:'fa-file-powerpoint', color:'text-purple-500'},
+  {name:'AI生成检测',    desc:'腾讯朱雀大模型，看看图文是不是由AI生成的',         cat:'common', url:'https://matrix.tencent.com/ai-detect/', icon:'fa-shield-cat',      color:'text-blue-500'},
+  {name:'建筑提示词',    desc:'建筑设计提示词撰写与图片反推',                    cat:'common', url:'https://yuanjineng.cn/webui/',           icon:'fa-building',        color:'text-orange-500 dark:text-orange-400'},
+  // AI对话
+  {name:'Gemini Pro',   desc:'Google原生最牛的多模态大模型',                    cat:'chat', url:'https://gemini.google.com/app', icon:'fa-brands fa-google', color:'text-blue-400 dark:text-blue-300'},
+  {name:'ChatGPT',      desc:'OpenAI旗舰，多模态综合能力标准制定者',            cat:'chat', url:'https://chatgpt.com/',             icon:'fa-comment-dots',  color:'text-green-600 dark:text-green-500'},
+  {name:'Claude 3.5',   desc:'Anthropic出品，当前编程与逻辑最强模型之一',        cat:'chat', url:'https://claude.ai',                icon:'fa-brain',         color:'text-orange-600 dark:text-orange-300'},
+  {name:'Deepseek',     desc:'深度求索，国产开源之光，逻辑能力强',               cat:'chat', url:'https://chat.deepseek.com',       icon:'fa-fish',          color:'text-blue-700 dark:text-indigo-400'},
+  {name:'Genspark',     desc:'新一代AI搜索，生成结构化百科页面，体验极佳',        cat:'chat', url:'https://www.genspark.ai/',       icon:'fa-bolt',          color:'text-yellow-500'},
+  {name:'智谱清言',     desc:'ChatGLM，国产第一梯队，擅长数据分析与长文档',        cat:'chat', url:'https://chatglm.cn/',            icon:'fa-comment-medical', color:'text-blue-500'},
+  {name:'Perplexity',   desc:'AI实时联网搜索，替代传统搜索引擎',                cat:'chat', url:'https://www.perplexity.ai/',     icon:'fa-magnifying-glass', color:'text-teal-600 dark:text-teal-300'},
+  {name:'豆包',          desc:'字节跳动出品，语音交互体验极佳',                  cat:'chat', url:'https://doubao.com',              icon:'fa-robot',         color:'text-blue-500 dark:text-blue-400'},
+  {name:'秘塔AI搜索',   desc:'无广告直达结果，学术搜索利器',                    cat:'chat', url:'https://metaso.cn/',              icon:'fa-magnifying-glass-chart', color:'text-emerald-500 dark:text-emerald-400'},
+  {name:'Grok',         desc:'马斯克xAI开发，接入X实时数据',                    cat:'chat', url:'https://grok.com/',               icon:'fa-brands fa-x-twitter', color:'text-black dark:text-white'},
+  // AI写作
+  {name:'NotebookLM',   desc:'Google黑科技，把文档变成播客，学习复习神器',        cat:'write', url:'https://notebooklm.google.com/', icon:'fa-book-journal-whills', color:'text-lime-600'},
+  {name:'WPS AI',       desc:'金山办公出品，文档一键生成与润色',                cat:'write', url:'https://www.wps.cn/',            icon:'fa-file-word',     color:'text-blue-600 dark:text-blue-500'},
+  {name:'Kimi 智能助手', desc:'Moonshot AI，支持超长上下文阅读',                cat:'write', url:'https://kimi.moonshot.cn',      icon:'fa-moon',          color:'text-indigo-500 dark:text-slate-200'},
+  {name:'Notion AI',    desc:'笔记软件中的AI，非常适合知识管理',                cat:'write', url:'https://www.notion.so/',        icon:'fa-book-open',     color:'text-black dark:text-white'},
+  {name:'Copy.ai',      desc:'营销文案生成神器',                                cat:'write', url:'https://www.copy.ai/',          icon:'fa-copy',          color:'text-green-600 dark:text-green-400'},
+  // AI绘图
+  {name:'Midjourney',   desc:'目前艺术感最强的AI绘图工具',                      cat:'image', url:'https://midjourney.com',         icon:'fa-brands fa-discord', color:'text-slate-800 dark:text-white'},
+  {name:'通义万相',     desc:'阿里出品，免费且中文理解能力极强的生图工具',         cat:'image', url:'https://wanxiang.aliyun.com/',  icon:'fa-paint-brush',   color:'text-purple-600'},
+  {name:'Liblib',       desc:'国内最大的Stable Diffusion模型社区',              cat:'image', url:'https://www.liblib.art/',        icon:'fa-palette',       color:'text-amber-500 dark:text-amber-400'},
+  {name:'Flux AI',      desc:'当前最火的开源生图模型，文字渲染能力强',           cat:'image', url:'https://flux-ai.io/',           icon:'fa-bolt',          color:'text-blue-600 dark:text-blue-400'},
+  {name:'Civitai',      desc:'全球最大的AI绘画模型分享站',                      cat:'image', url:'https://civitai.com/',           icon:'fa-images',        color:'text-blue-500 dark:text-blue-300'},
+  {name:'Recraft',      desc:'专为设计师打造的矢量图/插画生成',                 cat:'image', url:'https://www.recraft.ai/',        icon:'fa-vector-square', color:'text-purple-600 dark:text-purple-400'},
+  // AI视频
+  {name:'即梦 AI',      desc:'字节跳动出品，搭载最新Seedance 2.0模型',          cat:'video', url:'https://jimeng.jianying.com/',   icon:'fa-wand-magic-sparkles', color:'text-purple-600 dark:text-purple-400'},
+  {name:'可灵 Kling',   desc:'快手出品，Kling 3.0模型，电影级视频生成',          cat:'video', url:'https://klingai.kuaishou.com/', icon:'fa-clapperboard',  color:'text-emerald-600 dark:text-emerald-400'},
+  {name:'海螺 AI',      desc:'Minimax出品，视频生成速度极快',                   cat:'video', url:'https://hailuoai.com/video',     icon:'fa-film',          color:'text-cyan-600 dark:text-cyan-400'},
+  {name:'Runway',       desc:'Gen-3 Alpha模型，商业视频控制力强',               cat:'video', url:'https://runwayml.com/',          icon:'fa-scissors',      color:'text-pink-600 dark:text-pink-500'},
+  {name:'Luma Dream',   desc:'Luma Labs出品，运镜控制能力出色',                 cat:'video', url:'https://lumalabs.ai/dream-machine', icon:'fa-cube',       color:'text-blue-500 dark:text-blue-400'},
+  {name:'腾讯混元',     desc:'腾讯开源视频大模型，中文语境理解强',               cat:'video', url:'https://hunyuan.tencent.com/bot/video', icon:'fa-brands fa-qq', color:'text-blue-600 dark:text-blue-500'},
+  // AI音乐
+  {name:'ElevenLabs',   desc:'目前最逼真的AI语音合成(TTS)，支持情感克隆',        cat:'music', url:'https://elevenlabs.io/',        icon:'fa-microphone-lines', color:'text-slate-700 dark:text-slate-300'},
+  {name:'Suno',         desc:'目前最火的AI写歌神器，可生成完整人声歌曲',         cat:'music', url:'https://suno.com/',              icon:'fa-music',          color:'text-orange-500 dark:text-yellow-400'},
+  {name:'Udio',         desc:'Suno的最强竞争对手，音质极高',                    cat:'music', url:'https://www.udio.com/',          icon:'fa-headphones',     color:'text-red-600 dark:text-red-400'},
+  {name:'Stable Audio', desc:'Stability AI出品，生成高质量音效和背景乐',        cat:'music', url:'https://stableaudio.com/',      icon:'fa-wave-square',    color:'text-purple-600 dark:text-purple-400'},
+  {name:'AIVA',         desc:'老牌AI作曲家，适合生成古典/游戏配乐',             cat:'music', url:'https://www.aiva.ai/',          icon:'fa-guitar',         color:'text-blue-500 dark:text-blue-400'},
+  // AI编程
+  {name:'Cursor',       desc:'目前体验最好的AI代码编辑器 (VS Code Fork)',       cat:'code', url:'https://www.cursor.com/',        icon:'fa-terminal',      color:'text-slate-800 dark:text-slate-100'},
+  {name:'Trae',         desc:'字节跳动AI IDE，集成Claude/DeepSeek模型',         cat:'code', url:'https://www.trae.com.cn',        icon:'fa-laptop-code',   color:'text-blue-600 dark:text-blue-500'},
+  {name:'Antigravity',  desc:'Google最新发布的Agent优先IDE，重新定义编程',       cat:'code', url:'https://antigravity.google',    icon:'fa-rocket',        color:'text-blue-500'},
+  {name:'Claude Code',  desc:'Anthropic推出的终端Agent，直接操作文件系统',       cat:'code', url:'https://code.claude.com',       icon:'fa-terminal',      color:'text-orange-600'},
+  {name:'Windsurf',     desc:'Codeium出品，上下文感知极强的AI IDE',             cat:'code', url:'https://codeium.com/windsurf',   icon:'fa-water',         color:'text-cyan-500'},
+  {name:'Bolt.new',     desc:'StackBlitz出品，浏览器内生成全栈应用',            cat:'code', url:'https://bolt.new/',              icon:'fa-bolt-lightning', color:'text-yellow-500'},
+  {name:'v0.dev',       desc:'Vercel出品，用AI生成UI界面代码',                  cat:'code', url:'https://v0.dev/',                icon:'fa-code',          color:'text-black dark:text-white'},
+  {name:'HuggingFace',  desc:'AI界的GitHub，模型库集散地',                      cat:'code', url:'https://huggingface.co/',        icon:'fa-face-smile',    color:'text-yellow-600 dark:text-yellow-500'},
+  // 本地/桌面
+  {name:'LM Studio',    desc:'零门槛在本地电脑运行LLM',                         cat:'local', url:'https://lmstudio.ai/',          icon:'fa-desktop',       color:'text-purple-600 dark:text-purple-400'},
+  {name:'Ollama',       desc:'极客首选，命令行快速部署本地模型',                cat:'local', url:'https://ollama.com/',           icon:'fa-server',        color:'text-slate-800 dark:text-white'},
+  {name:'CherryStudio', desc:'高颜值多模型聚合客户端',                          cat:'local', url:'https://cherry-ai.com/',        icon:'fa-rocket',        color:'text-red-500 dark:text-red-400'},
+  // 模型排行
+  {name:'LMSYS Arena',          desc:'大模型竞技场，最权威的盲测排行',           cat:'rank', url:'https://chat.lmsys.org/',       icon:'fa-trophy',        color:'text-yellow-600 dark:text-yellow-500'},
+  {name:'Open LLM Leaderboard', desc:'HuggingFace开源模型榜单',                  cat:'rank', url:'https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard', icon:'fa-chart-simple', color:'text-yellow-500 dark:text-yellow-200'},
+  // 陆壹
+  {name:'九宫格切图', desc:'朋友圈九宫格切片工具，本地处理一键打包下载',          cat:'liuyi', url:'https://ninegrid.hlpeng.cn/', icon:'fa-border-all',    color:'text-rose-500 dark:text-rose-400'},
+];
+
+/* ================= 渲染 ================= */
+const catRow  = document.getElementById('catRow');
+const grid    = document.getElementById('grid');
+const heroRow = document.getElementById('heroRow');
+const searchIn = document.getElementById('searchIn');
+let activeCat = 'all';
+
+const catName = id => (CATS.find(c => c.id === id) || {}).name || '工具';
+const iconCls = icon => (icon.includes('fa-brands') || icon.includes('fa-solid')) ? icon : 'fa-solid ' + icon;
+
+function drawHero(){
+  heroRow.innerHTML = HERO.map(m => `
+    <a href="${m.url}" target="_blank" class="group flex flex-col items-center gap-2 cursor-pointer transition-transform hover:-translate-y-1">
+      <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${m.bg} shadow-lg shadow-gray-400/20 flex items-center justify-center text-white text-3xl relative overflow-hidden group-hover:ring-4 ring-opacity-20 ring-gray-300 transition-all">
+        <i class="${iconCls(m.icon)} relative z-10"></i>
+        <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+      </div>
+      <span class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">${m.name}</span>
+    </a>`).join('');
+}
+
+function drawCats(){
+  catRow.innerHTML = CATS.map(c => `
+    <button data-cat="${c.id}"
+      class="cat-btn glass px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer border-transparent ${c.id === activeCat ? 'on' : 'text-slate-600 dark:text-slate-300'}">
+      <div class="${c.color}"><i class="fa-solid ${c.icon}"></i></div>
+      <span class="text-sm font-bold whitespace-nowrap">${c.name}</span>
+    </button>`).join('');
+}
+
+function drawGrid(list){
+  grid.innerHTML = '';
+  if(!list.length){
+    grid.innerHTML = `
+      <div class="col-span-full text-center py-20">
+        <div class="inline-block p-6 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
+          <i class="fa-solid fa-ghost text-4xl text-slate-300 dark:text-slate-600"></i>
+        </div>
+        <p class="text-slate-500 dark:text-slate-400">没有找到相关工具，换个词试试？</p>
+      </div>`;
+    return;
+  }
+  list.forEach((t, i) => {
+    const card = document.createElement('div');
+    card.className = 'glass rounded-2xl p-6 flex flex-col h-full group rise relative overflow-hidden';
+    card.style.animationDelay = `${Math.min(i*50, 1000)}ms`;
+    card.innerHTML = `
+      <div class="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <i class="fa-solid fa-arrow-up-right-from-square text-cyan-500"></i>
+      </div>
+      <div class="flex items-start gap-4 mb-4">
+        <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 flex-shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+          <i class="${iconCls(t.icon)} ${t.color} text-2xl"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-800 dark:text-white text-lg group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition">${t.name}</h3>
+          <span class="text-xs font-medium bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 mt-1 inline-block">${catName(t.cat)}</span>
+        </div>
+      </div>
+      <p class="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 flex-grow leading-relaxed group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">${t.desc}</p>
+      <a href="${t.url}" target="_blank" class="absolute inset-0 z-10" aria-label="访问 ${t.name}"></a>`;
+    grid.appendChild(card);
+  });
+}
+
+/* ================= 交互 ================= */
+catRow.addEventListener('click', e => {
+  const btn = e.target.closest('.cat-btn');
+  if(!btn) return;
+  activeCat = btn.dataset.cat;
+  drawCats();
+  drawGrid(activeCat === 'all' ? TOOLS : TOOLS.filter(t => t.cat === activeCat));
+});
+
+searchIn.addEventListener('input', e => {
+  const kw = e.target.value.toLowerCase().trim();
+  if(kw){ activeCat = null; } else { activeCat = 'all'; }
+  drawCats();
+  drawGrid(TOOLS.filter(t =>
+    t.name.toLowerCase().includes(kw) || t.desc.toLowerCase().includes(kw)));
+});
+
+window.addEventListener('scroll', () => {
+  document.getElementById('topBtn').classList.toggle('show', scrollY > 300);
+});
+document.getElementById('topBtn').addEventListener('click', () => scrollTo({top:0, behavior:'smooth'}));
+
+/* ================= 启动 ================= */
+drawHero();
+drawCats();
+drawGrid(TOOLS);
+</script>
+</body>
+</html>
