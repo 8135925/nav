@@ -1,6 +1,6 @@
 # 陆壹AI工具导航
 
-一个精美、轻量、开箱即用的 AI 工具导航站。收录全球优质 AI 工具，助力探索 AI 无限可能。
+一个精美、轻量、开箱即用的 AI 工具导航站。收录全球优质 AI 工具，助力探索 AI 无限可能-。
 
 ![Tech](https://img.shields.io/badge/HTML5-纯静态-orange) ![Tailwind](https://img.shields.io/badge/TailwindCSS-3.x-38bdf8) ![License](https://img.shields.io/badge/License-MIT-green)
 
