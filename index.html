@@ -118,9 +118,15 @@
   <p class="text-slate-500 dark:text-slate-400 mb-8 text-lg max-w-2xl mx-auto">收录全球优质 AI 工具，赋能你的创造力</p>
 
   <div class="max-w-2xl mx-auto relative z-10 group mb-10">
-    <div class="relative flex items-center">
-      <input type="text" id="searchIn" placeholder="搜索工具，例如：Suno, Claude, 编程..."
-        class="w-full bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-600 rounded-2xl py-4 pl-6 pr-14 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 shadow-xl backdrop-blur-sm transition-all">
+    <div class="relative flex items-center bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-xl backdrop-blur-sm focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all">
+      <div id="engineBar" class="flex items-center gap-1 pl-3">
+        <button data-engine="google" class="engine-btn px-3 py-2 rounded-xl text-sm font-bold transition">谷歌</button>
+        <button data-engine="baidu"  class="engine-btn px-3 py-2 rounded-xl text-sm font-bold transition">百度</button>
+        <button data-engine="bing"   class="engine-btn px-3 py-2 rounded-xl text-sm font-bold transition">必应</button>
+      </div>
+      <div class="w-px h-6 bg-slate-300 dark:bg-slate-600 mx-3 flex-shrink-0"></div>
+      <input type="text" id="webIn" placeholder="搜索网页，回车跳转..."
+        class="flex-1 min-w-0 bg-transparent py-4 pl-1 pr-14 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none">
       <i class="fa-solid fa-search absolute right-6 text-slate-400 group-hover:text-cyan-500 transition-colors"></i>
     </div>
   </div>
@@ -130,6 +136,15 @@
     <div class="flex flex-wrap justify-center gap-5 sm:gap-8 rise" id="heroRow" style="animation-delay:.2s"></div>
   </div>
 </header>
+
+<!-- 工具搜索 -->
+<section class="w-full pt-2">
+  <div id="toolSearchWrap" class="relative flex items-center group mx-auto">
+    <input type="text" id="searchIn" placeholder="搜索工具，例如：Suno, Claude, 编程..."
+      class="w-full bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-600 rounded-2xl py-4 pl-6 pr-14 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 shadow-xl backdrop-blur-sm transition-all">
+    <i class="fa-solid fa-search absolute right-6 text-slate-400 group-hover:text-cyan-500 transition-colors"></i>
+  </div>
+</section>
 
 <!-- 分类栏 -->
 <section class="container mx-auto px-4 py-4 sticky top-16 z-40 bg-transparent">
@@ -342,6 +357,55 @@ searchIn.addEventListener('input', e => {
     t.name.toLowerCase().includes(kw) || t.desc.toLowerCase().includes(kw)));
 });
 
+/* ================= 网页搜索 ================= */
+const ENGINES = {
+  google: {name:'谷歌', url:'https://www.google.com/search?q='},
+  baidu:  {name:'百度', url:'https://www.baidu.com/s?wd='},
+  bing:   {name:'必应', url:'https://www.bing.com/search?q='},
+};
+let activeEngine = 'google';
+const webIn = document.getElementById('webIn');
+const engineBtns = document.querySelectorAll('.engine-btn');
+
+function paintEngineBar(){
+  engineBtns.forEach(b => {
+    const on = b.dataset.engine === activeEngine;
+    b.className = `engine-btn px-3 py-2 rounded-xl text-sm font-bold transition cursor-pointer ${
+      on
+        ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/30'
+        : 'text-slate-500 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+    }`;
+  });
+}
+engineBtns.forEach(b => b.addEventListener('click', () => {
+  activeEngine = b.dataset.engine;
+  paintEngineBar();
+  webIn.focus();
+}));
+
+webIn.addEventListener('keydown', e => {
+  if(e.key !== 'Enter') return;
+  const kw = webIn.value.trim();
+  if(!kw) return;
+  window.open(ENGINES[activeEngine].url + encodeURIComponent(kw), '_blank');
+});
+paintEngineBar();
+
+/* 工具搜索框宽度对齐「常用工具」～「模型排行」分类按钮 */
+function fitToolSearch(){
+  const wrap = document.getElementById('toolSearchWrap');
+  const btns = [...catRow.querySelectorAll('.cat-btn')];
+  const l = btns.find(b => b.dataset.cat === 'common');
+  const r = btns.find(b => b.dataset.cat === 'rank');
+  if(!l || !r || r.offsetLeft < l.offsetLeft){ wrap.style.cssText = ''; return; }
+  const parentLeft = wrap.parentElement.getBoundingClientRect().left;
+  const lr = l.getBoundingClientRect();
+  const rr = r.getBoundingClientRect();
+  wrap.style.marginLeft = (lr.left - parentLeft) + 'px';
+  wrap.style.width = (rr.right - lr.left) + 'px';
+}
+window.addEventListener('resize', fitToolSearch);
+
 window.addEventListener('scroll', () => {
   document.getElementById('topBtn').classList.toggle('show', scrollY > 300);
 });
@@ -351,6 +415,8 @@ document.getElementById('topBtn').addEventListener('click', () => scrollTo({top:
 drawHero();
 drawCats();
 drawGrid(TOOLS);
+webIn.focus();
+fitToolSearch();
 </script>
 </body>
 </html>
